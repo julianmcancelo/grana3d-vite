@@ -12,6 +12,8 @@ import Productos from './pages/admin/Productos'
 import Categorias from './pages/admin/Categorias'
 import Configuracion from './pages/admin/Configuracion'
 import AdminPlaceholder from './components/AdminPlaceholder'
+import Banners from './pages/admin/Banners'
+import NotFound from './pages/NotFound'
 
 function App() {
   return (
@@ -31,7 +33,11 @@ function App() {
                 <Route path="categorias" element={<Categorias />} />
                 <Route path="pedidos" element={<AdminPlaceholder title="Pedidos" />} />
                 <Route path="config" element={<Configuracion />} />
+                <Route path="banners" element={<Banners />} />
               </Route>
+
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </CarritoProvider>
