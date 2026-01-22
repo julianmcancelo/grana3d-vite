@@ -1,15 +1,11 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
-    ShoppingCart, Search, Menu, X, User, Heart, ChevronRight,
-    Phone, Mail, MapPin, Truck, CreditCard, Shield,
+    ChevronRight, Phone, Mail, MapPin, Truck, CreditCard, Shield,
     Package, Zap, Award, Headphones, Sparkles, Gift, Home as HomeIcon, Star,
-    Facebook, Instagram, MessageCircle, ArrowRight, Sun, Moon, LogOut
+    Facebook, Instagram, MessageCircle, ArrowRight
 } from 'lucide-react'
-import { useTheme } from '../context/ThemeContext'
-import { useCarrito } from '../context/CarritoContext'
-import { useUsuario } from '../context/UsuarioContext'
+import Header from '../components/Header'
 import CarritoDrawer from '../components/CarritoDrawer'
 import ModalUsuario from '../components/ModalUsuario'
 
@@ -32,13 +28,6 @@ const CONFIG = {
         instagram: "#"
     }
 }
-
-const navegacion = [
-    { nombre: "Inicio", href: "/" },
-    { nombre: "Tienda", href: "/tienda" },
-    { nombre: "Categorías", href: "#categorias" },
-    { nombre: "Contacto", href: "#contacto" },
-]
 
 const categorias = [
     { nombre: "Figuras", icono: Sparkles, href: "#", descripcion: "Personajes y coleccionables", color: "from-purple-500 to-purple-600" },
@@ -108,149 +97,13 @@ function ProductosVacios() {
 // ============================================
 
 export default function Tienda() {
-    const [menuMovil, setMenuMovil] = useState(false)
-    const { theme, toggleTheme } = useTheme()
-    const { cantidadTotal, abrirCarrito } = useCarrito()
-    const { usuario, estaAutenticado, abrirModal, cerrarSesion } = useUsuario()
-
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
             {/* Banner Ofertas */}
             <BannerOfertas />
 
             {/* Header */}
-            <header className="bg-white dark:bg-gray-900 sticky top-0 z-40 shadow-sm dark:shadow-gray-800/30 transition-colors duration-300">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex items-center justify-between h-16 lg:h-20">
-                        {/* Botón menú móvil */}
-                        <button className="lg:hidden p-2 -ml-2" onClick={() => setMenuMovil(!menuMovil)}>
-                            {menuMovil ? <X className="w-6 h-6 text-gray-900 dark:text-white" /> : <Menu className="w-6 h-6 text-gray-900 dark:text-white" />}
-                        </button>
-
-                        {/* Logo */}
-                        <Link to="/" className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-grana-purple to-grana-cyan rounded-xl flex items-center justify-center">
-                                <Sparkles className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="text-xl font-bold tracking-tight hidden sm:block">
-                                <span className="text-grana-purple">Grana</span>
-                                <span className="text-gray-900 dark:text-white">3D</span>
-                            </span>
-                        </Link>
-
-                        {/* Navegación Desktop */}
-                        <nav className="hidden lg:flex items-center gap-1">
-                            {navegacion.map((link) => (
-                                <Link
-                                    key={link.nombre}
-                                    to={link.href}
-                                    className="px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                >
-                                    {link.nombre}
-                                </Link>
-                            ))}
-                        </nav>
-
-                        {/* Búsqueda */}
-                        <div className="hidden md:flex flex-1 max-w-md mx-8">
-                            <div className="relative w-full">
-                                <input
-                                    type="text"
-                                    placeholder="Buscar productos..."
-                                    className="w-full px-4 py-2.5 pl-11 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-grana-purple/20 dark:focus:ring-grana-cyan/30 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            </div>
-                        </div>
-
-                        {/* Acciones */}
-                        <div className="flex items-center gap-1">
-                            {/* Toggle Tema */}
-                            <button
-                                onClick={toggleTheme}
-                                className="p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                aria-label="Cambiar tema"
-                            >
-                                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                            </button>
-
-                            {/* Usuario */}
-                            {estaAutenticado ? (
-                                <div className="hidden sm:flex items-center gap-2">
-                                    <span className="text-sm text-gray-600 dark:text-gray-300">
-                                        Hola, {usuario?.nombre}
-                                    </span>
-                                    <button
-                                        onClick={cerrarSesion}
-                                        className="p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                        title="Cerrar sesión"
-                                    >
-                                        <LogOut className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={() => abrirModal('login')}
-                                    className="hidden sm:flex p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                >
-                                    <User className="w-5 h-5" />
-                                </button>
-                            )}
-
-                            {/* Favoritos */}
-                            <button className="hidden sm:flex p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                <Heart className="w-5 h-5" />
-                            </button>
-
-                            {/* Carrito */}
-                            <button
-                                onClick={abrirCarrito}
-                                className="relative p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                            >
-                                <ShoppingCart className="w-5 h-5" />
-                                {cantidadTotal > 0 && (
-                                    <span className="absolute top-1 right-1 w-4 h-4 bg-grana-purple text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                                        {cantidadTotal}
-                                    </span>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Menú Móvil */}
-                <AnimatePresence>
-                    {menuMovil && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="lg:hidden border-t border-gray-100 dark:border-gray-800"
-                        >
-                            <nav className="px-4 py-4 space-y-1 bg-white dark:bg-gray-900">
-                                {navegacion.map((link) => (
-                                    <Link
-                                        key={link.nombre}
-                                        to={link.href}
-                                        className="block px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        onClick={() => setMenuMovil(false)}
-                                    >
-                                        {link.nombre}
-                                    </Link>
-                                ))}
-                                {!estaAutenticado && (
-                                    <button
-                                        onClick={() => { abrirModal('login'); setMenuMovil(false) }}
-                                        className="block w-full text-left px-4 py-3 rounded-lg text-grana-purple font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
-                                    >
-                                        Iniciar Sesión
-                                    </button>
-                                )}
-                            </nav>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </header>
+            <Header />
 
             {/* Hero */}
             <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
