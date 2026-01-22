@@ -8,6 +8,9 @@ import Tienda from './pages/Tienda'
 // Admin
 import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/admin/Dashboard'
+import Productos from './pages/admin/Productos'
+import Categorias from './pages/admin/Categorias'
+import Configuracion from './pages/admin/Configuracion'
 import AdminPlaceholder from './components/AdminPlaceholder'
 
 function App() {
@@ -24,10 +27,10 @@ function App() {
               {/* Rutas Admin */}
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
-                <Route path="productos" element={<AdminPlaceholder title="Productos" />} />
-                <Route path="categorias" element={<AdminPlaceholder title="Categorías" />} />
+                <Route path="productos" element={<Productos />} />
+                <Route path="categorias" element={<Categorias />} />
                 <Route path="pedidos" element={<AdminPlaceholder title="Pedidos" />} />
-                <Route path="config" element={<AdminPlaceholder title="Configuración" />} />
+                <Route path="config" element={<Configuracion />} />
               </Route>
             </Routes>
           </BrowserRouter>
