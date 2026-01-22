@@ -83,6 +83,11 @@ export default function CarritoDrawer() {
                                                 <h3 className="font-medium text-gray-900 dark:text-white truncate">
                                                     {item.nombre}
                                                 </h3>
+                                                {item.variante && (
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                        {item.variante}
+                                                    </p>
+                                                )}
                                                 <p className="text-grana-purple font-bold mt-1">
                                                     ${item.precio.toLocaleString('es-AR')}
                                                 </p>
@@ -90,7 +95,7 @@ export default function CarritoDrawer() {
                                                 {/* Controles cantidad */}
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <button
-                                                        onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
+                                                        onClick={() => actualizarCantidad(item.id, item.cantidad - 1, item.variante)}
                                                         className="w-8 h-8 rounded-lg bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                                                     >
                                                         <Minus className="w-4 h-4" />
@@ -99,13 +104,13 @@ export default function CarritoDrawer() {
                                                         {item.cantidad}
                                                     </span>
                                                     <button
-                                                        onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
+                                                        onClick={() => actualizarCantidad(item.id, item.cantidad + 1, item.variante)}
                                                         className="w-8 h-8 rounded-lg bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                                                     >
                                                         <Plus className="w-4 h-4" />
                                                     </button>
                                                     <button
-                                                        onClick={() => eliminarProducto(item.id)}
+                                                        onClick={() => eliminarProducto(item.id, item.variante)}
                                                         className="ml-auto p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                     >
                                                         <Trash2 className="w-4 h-4" />

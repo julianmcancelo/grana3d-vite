@@ -99,7 +99,8 @@ function ProductCard({ producto }: { producto: Producto }) {
     const precio = producto.precioOferta || producto.precio
     const tieneOferta = producto.precioOferta && producto.precioOferta < producto.precio
 
-    const handleAgregar = () => {
+    const handleAgregar = (e: React.MouseEvent) => {
+        e.preventDefault() // Evitar navegación al hacer click en agregar
         agregarProducto({
             id: producto.id,
             nombre: producto.nombre,
@@ -115,73 +116,75 @@ function ProductCard({ producto }: { producto: Producto }) {
             viewport={{ once: true }}
             className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300"
         >
-            {/* Imagen */}
-            <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
-                {producto.imagenes[0] ? (
-                    <img
-                        src={producto.imagenes[0]}
-                        alt={producto.nombre}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="w-16 h-16 text-gray-300" />
-                    </div>
-                )}
+            <Link to={`/producto/${producto.slug}`} className="block">
+                {/* Imagen */}
+                <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                    {producto.imagenes[0] ? (
+                        <img
+                            src={producto.imagenes[0]}
+                            alt={producto.nombre}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon className="w-16 h-16 text-gray-300" />
+                        </div>
+                    )}
 
-                {/* Badges */}
-                <div className="absolute top-3 left-3 flex flex-col gap-2">
-                    {producto.nuevo && (
-                        <span className="px-2 py-1 bg-grana-cyan text-white text-xs font-medium rounded-full">
-                            Nuevo
-                        </span>
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-2">
+                        {producto.nuevo && (
+                            <span className="px-2 py-1 bg-grana-cyan text-white text-xs font-medium rounded-full">
+                                Nuevo
+                            </span>
+                        )}
+                        {tieneOferta && (
+                            <span className="px-2 py-1 bg-grana-orange text-white text-xs font-medium rounded-full">
+                                Oferta
+                            </span>
+                        )}
+                    </div>
+
+                    {producto.destacado && (
+                        <div className="absolute top-3 right-3">
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                        </div>
                     )}
-                    {tieneOferta && (
-                        <span className="px-2 py-1 bg-grana-orange text-white text-xs font-medium rounded-full">
-                            Oferta
-                        </span>
-                    )}
+
+                    {/* Quick Add */}
+                    <button
+                        onClick={handleAgregar}
+                        className="absolute bottom-3 right-3 w-10 h-10 bg-grana-purple text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:bg-grana-purple/90 z-10"
+                    >
+                        <ShoppingCart className="w-5 h-5" />
+                    </button>
                 </div>
 
-                {producto.destacado && (
-                    <div className="absolute top-3 right-3">
-                        <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    </div>
-                )}
-
-                {/* Quick Add */}
-                <button
-                    onClick={handleAgregar}
-                    className="absolute bottom-3 right-3 w-10 h-10 bg-grana-purple text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:bg-grana-purple/90"
-                >
-                    <ShoppingCart className="w-5 h-5" />
-                </button>
-            </div>
-
-            {/* Info */}
-            <div className="p-4">
-                <span className="text-xs text-grana-purple font-medium">{producto.categoria?.nombre}</span>
-                <h3 className="font-semibold text-gray-900 dark:text-white mt-1 line-clamp-2">{producto.nombre}</h3>
-                {producto.descripcionCorta && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{producto.descripcionCorta}</p>
-                )}
-                <div className="flex items-center gap-2 mt-3">
-                    <span className="text-lg font-bold text-gray-900 dark:text-white">
-                        ${precio.toLocaleString()}
-                    </span>
-                    {tieneOferta && (
-                        <span className="text-sm text-gray-400 line-through">
-                            ${producto.precio.toLocaleString()}
-                        </span>
+                {/* Info */}
+                <div className="p-4">
+                    <span className="text-xs text-grana-purple font-medium">{producto.categoria?.nombre}</span>
+                    <h3 className="font-semibold text-gray-900 dark:text-white mt-1 line-clamp-2">{producto.nombre}</h3>
+                    {producto.descripcionCorta && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{producto.descripcionCorta}</p>
                     )}
+                    <div className="flex items-center gap-2 mt-3">
+                        <span className="text-lg font-bold text-gray-900 dark:text-white">
+                            ${precio.toLocaleString()}
+                        </span>
+                        {tieneOferta && (
+                            <span className="text-sm text-gray-400 line-through">
+                                ${producto.precio.toLocaleString()}
+                            </span>
+                        )}
+                    </div>
+                    <button
+                        onClick={handleAgregar}
+                        className="w-full mt-3 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium rounded-xl hover:bg-grana-purple hover:text-white transition-colors"
+                    >
+                        Agregar al Carrito
+                    </button>
                 </div>
-                <button
-                    onClick={handleAgregar}
-                    className="w-full mt-3 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium rounded-xl hover:bg-grana-purple hover:text-white transition-colors"
-                >
-                    Agregar al Carrito
-                </button>
-            </div>
+            </Link>
         </motion.div>
     )
 }

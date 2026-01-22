@@ -52,16 +52,20 @@ export default function Banners() {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const fileInputMovilRef = useRef<HTMLInputElement>(null)
 
+    const [error, setError] = useState<string | null>(null)
+
     useEffect(() => {
         cargarBanners()
     }, [])
 
     const cargarBanners = async () => {
         try {
+            setError(null)
             const { data } = await api.get('/admin/banners')
             setBanners(data)
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error cargando banners:', error)
+            setError(error.message || 'Error desconocido al cargar banners')
         } finally {
             setLoading(false)
         }
@@ -175,6 +179,15 @@ export default function Banners() {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-grana-purple"></div>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+                Error: {error}
+                <button onClick={cargarBanners} className="ml-4 underline">Reintentar</button>
             </div>
         )
     }
