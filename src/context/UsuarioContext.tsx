@@ -1,17 +1,20 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import api from '../api/client'
 
 interface Usuario {
     id: string
     nombre: string
     email: string
+    rol: 'ADMIN' | 'CLIENTE'
 }
 
 interface UsuarioContextType {
     usuario: Usuario | null
     estaAutenticado: boolean
+    esAdmin: boolean
     iniciandoSesion: boolean
     iniciarSesion: (email: string, password: string) => Promise<boolean>
-    registrarse: (nombre: string, email: string, password: string) => Promise<boolean>
+    registrarse: (nombre: string, email: string, password: string, telefono?: string) => Promise<boolean>
     cerrarSesion: () => void
     modalAbierto: boolean
     abrirModal: (modo?: 'login' | 'registro') => void
@@ -23,60 +26,67 @@ const UsuarioContext = createContext<UsuarioContextType | undefined>(undefined)
 
 export function UsuarioProvider({ children }: { children: ReactNode }) {
     const [usuario, setUsuario] = useState<Usuario | null>(null)
-    const [iniciandoSesion, setIniciandoSesion] = useState(false)
+    const [iniciandoSesion, setIniciandoSesion] = useState(true) // Empezamos cargando
     const [modalAbierto, setModalAbierto] = useState(false)
     const [modoModal, setModoModal] = useState<'login' | 'registro'>('login')
 
-    // Cargar usuario guardado
+    // Cargar sesión inicial
     useEffect(() => {
-        const guardado = localStorage.getItem('grana3d_usuario')
-        if (guardado) {
+        const cargarSesion = async () => {
+            const token = localStorage.getItem('token')
+            if (!token) {
+                setIniciandoSesion(false)
+                return
+            }
+
             try {
-                setUsuario(JSON.parse(guardado))
-            } catch (e) {
-                localStorage.removeItem('grana3d_usuario')
+                const { data } = await api.get('/auth/me')
+                setUsuario(data.usuario)
+            } catch (error) {
+                localStorage.removeItem('token')
+                setUsuario(null)
+            } finally {
+                setIniciandoSesion(false)
             }
         }
+        cargarSesion()
     }, [])
 
-    const iniciarSesion = async (email: string, _password: string): Promise<boolean> => {
+    const iniciarSesion = async (email: string, password: string): Promise<boolean> => {
         setIniciandoSesion(true)
-        // Simulación - en producción conectar con API
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        const nuevoUsuario: Usuario = {
-            id: crypto.randomUUID(),
-            nombre: email.split('@')[0],
-            email
+        try {
+            const { data } = await api.post('/auth/login', { email, password })
+            localStorage.setItem('token', data.token)
+            setUsuario(data.usuario)
+            setModalAbierto(false)
+            return true
+        } catch (error) {
+            console.error(error)
+            return false
+        } finally {
+            setIniciandoSesion(false)
         }
-
-        setUsuario(nuevoUsuario)
-        localStorage.setItem('grana3d_usuario', JSON.stringify(nuevoUsuario))
-        setIniciandoSesion(false)
-        setModalAbierto(false)
-        return true
     }
 
-    const registrarse = async (nombre: string, email: string, _password: string): Promise<boolean> => {
+    const registrarse = async (nombre: string, email: string, password: string, telefono?: string): Promise<boolean> => {
         setIniciandoSesion(true)
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        const nuevoUsuario: Usuario = {
-            id: crypto.randomUUID(),
-            nombre,
-            email
+        try {
+            const { data } = await api.post('/auth/registro', { nombre, email, password, telefono })
+            localStorage.setItem('token', data.token)
+            setUsuario(data.usuario)
+            setModalAbierto(false)
+            return true
+        } catch (error) {
+            console.error(error)
+            return false
+        } finally {
+            setIniciandoSesion(false)
         }
-
-        setUsuario(nuevoUsuario)
-        localStorage.setItem('grana3d_usuario', JSON.stringify(nuevoUsuario))
-        setIniciandoSesion(false)
-        setModalAbierto(false)
-        return true
     }
 
     const cerrarSesion = () => {
+        localStorage.removeItem('token')
         setUsuario(null)
-        localStorage.removeItem('grana3d_usuario')
     }
 
     const abrirModal = (modo: 'login' | 'registro' = 'login') => {
@@ -90,6 +100,7 @@ export function UsuarioProvider({ children }: { children: ReactNode }) {
         <UsuarioContext.Provider value={{
             usuario,
             estaAutenticado: !!usuario,
+            esAdmin: usuario?.rol === 'ADMIN',
             iniciandoSesion,
             iniciarSesion,
             registrarse,
