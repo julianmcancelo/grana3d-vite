@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
     LayoutDashboard, ShoppingBag, FolderTree, ShoppingCart, Settings,
-    LogOut, Menu, X, ChevronRight, User
+    LogOut, Menu, X, ChevronRight, User, Image
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useUsuario } from '../context/UsuarioContext'
@@ -24,6 +24,7 @@ export default function AdminLayout() {
 
     const navigation = [
         { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+        { name: 'Banners', href: '/admin/banners', icon: Image },
         { name: 'Productos', href: '/admin/productos', icon: ShoppingBag },
         { name: 'Categorías', href: '/admin/categorias', icon: FolderTree },
         { name: 'Pedidos', href: '/admin/pedidos', icon: ShoppingCart },
@@ -59,8 +60,8 @@ export default function AdminLayout() {
                                 key={item.name}
                                 to={item.href}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive
-                                        ? 'bg-grana-purple/5 text-grana-purple font-medium'
-                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                    ? 'bg-grana-purple/5 text-grana-purple font-medium'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                     }`}
                             >
                                 <item.icon size={20} />

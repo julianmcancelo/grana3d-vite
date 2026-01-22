@@ -7,6 +7,7 @@ import {
     Facebook, Instagram, MessageCircle, ArrowRight, ShoppingCart, Image as ImageIcon
 } from 'lucide-react'
 import Header from '../components/Header'
+import HeroSlider from '../components/HeroSlider'
 import CarritoDrawer from '../components/CarritoDrawer'
 import ModalUsuario from '../components/ModalUsuario'
 import { useCarrito } from '../context/CarritoContext'
@@ -253,66 +254,8 @@ export default function Tienda() {
             {/* Header */}
             <Header />
 
-            {/* Hero */}
-            <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
-                <div className="absolute inset-0 opacity-10">
-                    <div className="absolute inset-0" style={{
-                        backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-                        backgroundSize: '40px 40px'
-                    }} />
-                </div>
-
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-grana-purple/30 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-grana-cyan/20 rounded-full blur-3xl" />
-
-                <div className="relative max-w-7xl mx-auto px-4 py-16 lg:py-24">
-                    <div className="grid lg:grid-cols-2 gap-8 items-center">
-                        <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/80 text-sm mb-6">
-                                <Award className="w-4 h-4 text-grana-orange" />
-                                Productos Únicos Hechos en Argentina
-                            </span>
-                            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-6">
-                                {config.eslogan || 'Creaciones únicas'}
-                                <span className="block bg-gradient-to-r from-grana-purple via-grana-cyan to-grana-orange bg-clip-text text-transparent">
-                                    Impresas en 3D
-                                </span>
-                            </h1>
-                            <p className="text-lg text-gray-300 mb-8 max-w-lg">
-                                {config.descripcion || 'Figuras, decoración, regalos personalizados y accesorios únicos. Diseños exclusivos impresos con la mejor calidad.'}
-                            </p>
-                            <div className="flex flex-wrap gap-4">
-                                <a href="#productos" className="inline-flex items-center gap-2 px-6 py-3 bg-grana-purple text-white font-medium rounded-xl hover:bg-grana-purple/90 transition-colors">
-                                    Ver Productos
-                                    <ArrowRight className="w-4 h-4" />
-                                </a>
-                                <a href={`https://wa.me/${whatsapp}`} target="_blank" className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 transition-colors backdrop-blur-sm">
-                                    <MessageCircle className="w-4 h-4" />
-                                    Contactanos
-                                </a>
-                            </div>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                            className="relative hidden lg:block"
-                        >
-                            <div className="aspect-square relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-grana-purple/20 to-grana-cyan/20 rounded-3xl" />
-                                <div className="absolute inset-8 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center">
-                                    <Sparkles className="w-32 h-32 text-white/20" />
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
+            {/* Hero / Slider */}
+            <HeroSlider config={config} />
 
             {/* Características */}
             <section className="py-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 transition-colors">
