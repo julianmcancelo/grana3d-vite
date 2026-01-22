@@ -1,26 +1,31 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     ShoppingCart, Search, Menu, X, User, Heart, ChevronRight,
     Phone, Mail, MapPin, Truck, CreditCard, Shield,
-    Printer, Package, Settings, Palette, Zap, Award, Headphones,
-    Facebook, Instagram, MessageCircle, ArrowRight, Sun, Moon
+    Package, Zap, Award, Headphones, Sparkles, Gift, Home as HomeIcon, Star,
+    Facebook, Instagram, MessageCircle, ArrowRight, Sun, Moon, LogOut
 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
+import { useCarrito } from '../context/CarritoContext'
+import { useUsuario } from '../context/UsuarioContext'
+import CarritoDrawer from '../components/CarritoDrawer'
+import ModalUsuario from '../components/ModalUsuario'
 
 // ============================================
 // CONFIGURACIÓN
 // ============================================
 
 const CONFIG = {
-    storeName: "Grana3D",
-    tagline: "Impresión 3D Premium",
-    contact: {
+    nombreTienda: "Grana3D",
+    eslogan: "Productos Impresos en 3D",
+    descripcion: "Figuras, decoración y accesorios únicos impresos en 3D",
+    contacto: {
         email: "hola@grana3d.com.ar",
-        phone: "+54 11 1234-5678",
+        telefono: "+54 11 1234-5678",
         whatsapp: "5491112345678",
-        location: "Buenos Aires, Argentina"
+        ubicacion: "Buenos Aires, Argentina"
     },
     social: {
         facebook: "#",
@@ -28,38 +33,37 @@ const CONFIG = {
     }
 }
 
-const navLinks = [
-    { name: "Inicio", href: "/" },
-    { name: "Impresoras", href: "#" },
-    { name: "Filamentos", href: "#" },
-    { name: "Accesorios", href: "#" },
-    { name: "Ofertas", href: "#", highlight: true },
+const navegacion = [
+    { nombre: "Inicio", href: "/" },
+    { nombre: "Tienda", href: "/tienda" },
+    { nombre: "Categorías", href: "#categorias" },
+    { nombre: "Contacto", href: "#contacto" },
 ]
 
-const categories = [
-    { name: "Filamentos", icon: Palette, href: "#", description: "PLA, PETG, ABS, TPU", color: "from-purple-500 to-purple-600", items: 45 },
-    { name: "Impresoras 3D", icon: Printer, href: "#", description: "FDM y Resina", color: "from-cyan-500 to-cyan-600", items: 12 },
-    { name: "Repuestos", icon: Settings, href: "#", description: "Boquillas, motores, correas", color: "from-orange-500 to-orange-600", items: 38 },
-    { name: "Accesorios", icon: Package, href: "#", description: "Herramientas y más", color: "from-pink-500 to-pink-600", items: 24 },
+const categorias = [
+    { nombre: "Figuras", icono: Sparkles, href: "#", descripcion: "Personajes y coleccionables", color: "from-purple-500 to-purple-600" },
+    { nombre: "Decoración", icono: HomeIcon, href: "#", descripcion: "Para tu hogar u oficina", color: "from-cyan-500 to-cyan-600" },
+    { nombre: "Regalos", icono: Gift, href: "#", descripcion: "Personalizados y únicos", color: "from-orange-500 to-orange-600" },
+    { nombre: "Accesorios", icono: Star, href: "#", descripcion: "Llaveros, soportes y más", color: "from-pink-500 to-pink-600" },
 ]
 
-const features = [
-    { icon: Truck, title: "Envío Gratis", desc: "En compras +$50.000" },
-    { icon: CreditCard, title: "12 Cuotas", desc: "Sin interés" },
-    { icon: Shield, title: "Garantía", desc: "12 meses" },
-    { icon: Headphones, title: "Soporte", desc: "Atención 24/7" },
+const caracteristicas = [
+    { icono: Truck, titulo: "Envío a Todo el País", desc: "Llegamos a donde estés" },
+    { icono: CreditCard, titulo: "Pagos Seguros", desc: "Múltiples medios de pago" },
+    { icono: Shield, titulo: "Garantía", desc: "Productos de calidad" },
+    { icono: Headphones, titulo: "Atención Personalizada", desc: "Te asesoramos" },
 ]
 
 // ============================================
 // COMPONENTES
 // ============================================
 
-function FloatingWhatsApp() {
+function BotonWhatsApp() {
     return (
         <motion.a
-            href={`https://wa.me/${CONFIG.contact.whatsapp}`}
+            href={`https://wa.me/${CONFIG.contacto.whatsapp}`}
             target="_blank"
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors"
+            className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             whileHover={{ scale: 1.1 }}
@@ -70,52 +74,18 @@ function FloatingWhatsApp() {
     )
 }
 
-function CountdownBanner() {
-    const [time, setTime] = useState({ days: 3, hours: 12, minutes: 45, seconds: 30 })
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTime((prev) => {
-                let { days, hours, minutes, seconds } = prev
-                seconds--
-                if (seconds < 0) { seconds = 59; minutes-- }
-                if (minutes < 0) { minutes = 59; hours-- }
-                if (hours < 0) { hours = 23; days-- }
-                if (days < 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
-                return { days, hours, minutes, seconds }
-            })
-        }, 1000)
-        return () => clearInterval(timer)
-    }, [])
-
+function BannerOfertas() {
     return (
-        <div className="bg-gradient-to-r from-grana-purple via-grana-cyan to-grana-orange text-white py-3">
-            <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4" />
-                    <span className="font-bold">OFERTAS ESPECIALES</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span>Termina en:</span>
-                    <div className="flex gap-1">
-                        {[
-                            { v: time.days, l: "d" },
-                            { v: time.hours, l: "h" },
-                            { v: time.minutes, l: "m" },
-                            { v: time.seconds, l: "s" },
-                        ].map((t, i) => (
-                            <span key={i} className="bg-white/20 px-2 py-0.5 rounded font-mono font-bold">
-                                {String(t.v).padStart(2, "0")}{t.l}
-                            </span>
-                        ))}
-                    </div>
-                </div>
+        <div className="bg-gradient-to-r from-grana-purple via-grana-cyan to-grana-orange text-white py-2.5">
+            <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-2 text-sm">
+                <Zap className="w-4 h-4" />
+                <span className="font-medium">¡Envío gratis en compras mayores a $50.000!</span>
             </div>
         </div>
     )
 }
 
-function EmptyProducts() {
+function ProductosVacios() {
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -138,27 +108,29 @@ function EmptyProducts() {
 // ============================================
 
 export default function Tienda() {
-    const [mobileMenu, setMobileMenu] = useState(false)
+    const [menuMovil, setMenuMovil] = useState(false)
     const { theme, toggleTheme } = useTheme()
+    const { cantidadTotal, abrirCarrito } = useCarrito()
+    const { usuario, estaAutenticado, abrirModal, cerrarSesion } = useUsuario()
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
-            {/* Countdown Banner */}
-            <CountdownBanner />
+            {/* Banner Ofertas */}
+            <BannerOfertas />
 
             {/* Header */}
-            <header className="bg-white dark:bg-gray-900 sticky top-0 z-50 shadow-sm dark:shadow-gray-800/30 transition-colors duration-300">
+            <header className="bg-white dark:bg-gray-900 sticky top-0 z-40 shadow-sm dark:shadow-gray-800/30 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex items-center justify-between h-16 lg:h-20">
-                        {/* Mobile menu button */}
-                        <button className="lg:hidden p-2 -ml-2" onClick={() => setMobileMenu(!mobileMenu)}>
-                            {mobileMenu ? <X className="w-6 h-6 text-gray-900 dark:text-white" /> : <Menu className="w-6 h-6 text-gray-900 dark:text-white" />}
+                        {/* Botón menú móvil */}
+                        <button className="lg:hidden p-2 -ml-2" onClick={() => setMenuMovil(!menuMovil)}>
+                            {menuMovil ? <X className="w-6 h-6 text-gray-900 dark:text-white" /> : <Menu className="w-6 h-6 text-gray-900 dark:text-white" />}
                         </button>
 
                         {/* Logo */}
                         <Link to="/" className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-grana-purple to-grana-cyan rounded-xl flex items-center justify-center">
-                                <Printer className="w-5 h-5 text-white" />
+                                <Sparkles className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-xl font-bold tracking-tight hidden sm:block">
                                 <span className="text-grana-purple">Grana</span>
@@ -166,23 +138,20 @@ export default function Tienda() {
                             </span>
                         </Link>
 
-                        {/* Desktop Nav */}
+                        {/* Navegación Desktop */}
                         <nav className="hidden lg:flex items-center gap-1">
-                            {navLinks.map((link) => (
+                            {navegacion.map((link) => (
                                 <Link
-                                    key={link.name}
+                                    key={link.nombre}
                                     to={link.href}
-                                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${link.highlight
-                                        ? "text-grana-purple bg-grana-purple/5 hover:bg-grana-purple/10"
-                                        : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        }`}
+                                    className="px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                 >
-                                    {link.name}
+                                    {link.nombre}
                                 </Link>
                             ))}
                         </nav>
 
-                        {/* Search */}
+                        {/* Búsqueda */}
                         <div className="hidden md:flex flex-1 max-w-md mx-8">
                             <div className="relative w-full">
                                 <input
@@ -194,35 +163,64 @@ export default function Tienda() {
                             </div>
                         </div>
 
-                        {/* Actions */}
+                        {/* Acciones */}
                         <div className="flex items-center gap-1">
-                            {/* Theme Toggle */}
+                            {/* Toggle Tema */}
                             <button
                                 onClick={toggleTheme}
                                 className="p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                aria-label="Toggle theme"
+                                aria-label="Cambiar tema"
                             >
                                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                             </button>
-                            <Link to="#" className="hidden sm:flex p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                <User className="w-5 h-5" />
-                            </Link>
-                            <Link to="#" className="hidden sm:flex p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+
+                            {/* Usuario */}
+                            {estaAutenticado ? (
+                                <div className="hidden sm:flex items-center gap-2">
+                                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                                        Hola, {usuario?.nombre}
+                                    </span>
+                                    <button
+                                        onClick={cerrarSesion}
+                                        className="p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                        title="Cerrar sesión"
+                                    >
+                                        <LogOut className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => abrirModal('login')}
+                                    className="hidden sm:flex p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                >
+                                    <User className="w-5 h-5" />
+                                </button>
+                            )}
+
+                            {/* Favoritos */}
+                            <button className="hidden sm:flex p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                                 <Heart className="w-5 h-5" />
-                            </Link>
-                            <Link to="#" className="relative p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            </button>
+
+                            {/* Carrito */}
+                            <button
+                                onClick={abrirCarrito}
+                                className="relative p-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            >
                                 <ShoppingCart className="w-5 h-5" />
-                                <span className="absolute top-1 right-1 w-4 h-4 bg-grana-purple text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                                    0
-                                </span>
-                            </Link>
+                                {cantidadTotal > 0 && (
+                                    <span className="absolute top-1 right-1 w-4 h-4 bg-grana-purple text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                        {cantidadTotal}
+                                    </span>
+                                )}
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Mobile Menu */}
+                {/* Menú Móvil */}
                 <AnimatePresence>
-                    {mobileMenu && (
+                    {menuMovil && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
@@ -230,23 +228,31 @@ export default function Tienda() {
                             className="lg:hidden border-t border-gray-100 dark:border-gray-800"
                         >
                             <nav className="px-4 py-4 space-y-1 bg-white dark:bg-gray-900">
-                                {navLinks.map((link) => (
+                                {navegacion.map((link) => (
                                     <Link
-                                        key={link.name}
+                                        key={link.nombre}
                                         to={link.href}
                                         className="block px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        onClick={() => setMobileMenu(false)}
+                                        onClick={() => setMenuMovil(false)}
                                     >
-                                        {link.name}
+                                        {link.nombre}
                                     </Link>
                                 ))}
+                                {!estaAutenticado && (
+                                    <button
+                                        onClick={() => { abrirModal('login'); setMenuMovil(false) }}
+                                        className="block w-full text-left px-4 py-3 rounded-lg text-grana-purple font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+                                    >
+                                        Iniciar Sesión
+                                    </button>
+                                )}
                             </nav>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </header>
 
-            {/* Hero Banner */}
+            {/* Hero */}
             <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute inset-0" style={{
@@ -267,24 +273,25 @@ export default function Tienda() {
                         >
                             <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/80 text-sm mb-6">
                                 <Award className="w-4 h-4 text-grana-orange" />
-                                Tienda Oficial Argentina
+                                Productos Únicos Hechos en Argentina
                             </span>
                             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-6">
-                                Todo para tu
+                                Creaciones únicas
                                 <span className="block bg-gradient-to-r from-grana-purple via-grana-cyan to-grana-orange bg-clip-text text-transparent">
-                                    Impresión 3D
+                                    Impresas en 3D
                                 </span>
                             </h1>
                             <p className="text-lg text-gray-300 mb-8 max-w-lg">
-                                Impresoras, filamentos, accesorios y repuestos de las mejores marcas. Envío a todo el país.
+                                Figuras, decoración, regalos personalizados y accesorios únicos. Diseños exclusivos impresos con la mejor calidad.
                             </p>
                             <div className="flex flex-wrap gap-4">
-                                <a href="#productos" className="inline-flex items-center gap-2 px-6 py-3 bg-grana-purple text-white font-medium rounded-xl hover:bg-grana-purple/90 transition-colors">
+                                <a href="#categorias" className="inline-flex items-center gap-2 px-6 py-3 bg-grana-purple text-white font-medium rounded-xl hover:bg-grana-purple/90 transition-colors">
                                     Ver Productos
                                     <ArrowRight className="w-4 h-4" />
                                 </a>
-                                <a href="#" className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 transition-colors backdrop-blur-sm">
-                                    Contactar
+                                <a href={`https://wa.me/${CONFIG.contacto.whatsapp}`} target="_blank" className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 transition-colors backdrop-blur-sm">
+                                    <MessageCircle className="w-4 h-4" />
+                                    Contactanos
                                 </a>
                             </div>
                         </motion.div>
@@ -298,7 +305,7 @@ export default function Tienda() {
                             <div className="aspect-square relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-grana-purple/20 to-grana-cyan/20 rounded-3xl" />
                                 <div className="absolute inset-8 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center">
-                                    <Printer className="w-32 h-32 text-white/20" />
+                                    <Sparkles className="w-32 h-32 text-white/20" />
                                 </div>
                             </div>
                         </motion.div>
@@ -306,11 +313,11 @@ export default function Tienda() {
                 </div>
             </section>
 
-            {/* Features */}
+            {/* Características */}
             <section className="py-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 transition-colors">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-                        {features.map((f, i) => (
+                        {caracteristicas.map((c, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, y: 20 }}
@@ -320,11 +327,11 @@ export default function Tienda() {
                                 className="flex items-center gap-4 p-4"
                             >
                                 <div className="w-12 h-12 bg-gradient-to-br from-grana-purple/10 to-grana-cyan/10 dark:from-grana-purple/20 dark:to-grana-cyan/20 rounded-xl flex items-center justify-center shrink-0">
-                                    <f.icon className="w-6 h-6 text-grana-purple" />
+                                    <c.icono className="w-6 h-6 text-grana-purple" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-900 dark:text-white">{f.title}</h4>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">{f.desc}</p>
+                                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{c.titulo}</h4>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{c.desc}</p>
                                 </div>
                             </motion.div>
                         ))}
@@ -332,8 +339,8 @@ export default function Tienda() {
                 </div>
             </section>
 
-            {/* Categories */}
-            <section className="py-12 lg:py-16 bg-white dark:bg-gray-950 transition-colors">
+            {/* Categorías */}
+            <section id="categorias" className="py-12 lg:py-16 bg-white dark:bg-gray-950 transition-colors">
                 <div className="max-w-7xl mx-auto px-4">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -346,9 +353,9 @@ export default function Tienda() {
                     </motion.div>
 
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        {categories.map((cat, i) => (
+                        {categorias.map((cat, i) => (
                             <motion.div
-                                key={cat.name}
+                                key={cat.nombre}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -359,11 +366,10 @@ export default function Tienda() {
                                     className="group block p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg dark:hover:shadow-gray-900/50 transition-all"
                                 >
                                     <div className={`w-14 h-14 bg-gradient-to-br ${cat.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                                        <cat.icon className="w-7 h-7 text-white" />
+                                        <cat.icono className="w-7 h-7 text-white" />
                                     </div>
-                                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">{cat.name}</h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{cat.description}</p>
-                                    <span className="text-xs text-grana-purple font-medium">{cat.items} productos</span>
+                                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">{cat.nombre}</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">{cat.descripcion}</p>
                                 </a>
                             </motion.div>
                         ))}
@@ -371,7 +377,7 @@ export default function Tienda() {
                 </div>
             </section>
 
-            {/* Products */}
+            {/* Productos */}
             <section id="productos" className="py-12 lg:py-16 bg-gray-50 dark:bg-gray-900 transition-colors">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex items-center justify-between mb-10">
@@ -385,13 +391,13 @@ export default function Tienda() {
                     </div>
 
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-                        <EmptyProducts />
+                        <ProductosVacios />
                     </div>
                 </div>
             </section>
 
-            {/* CTA Banner */}
-            <section className="py-16 bg-white dark:bg-gray-950 transition-colors">
+            {/* CTA */}
+            <section id="contacto" className="py-16 bg-white dark:bg-gray-950 transition-colors">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="relative overflow-hidden bg-gradient-to-r from-grana-purple to-grana-cyan rounded-3xl p-8 lg:p-12">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
@@ -400,13 +406,14 @@ export default function Tienda() {
                         <div className="relative flex flex-col lg:flex-row items-center gap-8">
                             <div className="flex-1 text-center lg:text-left">
                                 <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                                    ¿Tenés dudas sobre qué comprar?
+                                    ¿Querés algo personalizado?
                                 </h2>
                                 <p className="text-white/80 text-lg mb-6">
-                                    Nuestro equipo te asesora para elegir el producto ideal para tu proyecto.
+                                    Diseñamos e imprimimos lo que necesites. Contanos tu idea y la hacemos realidad.
                                 </p>
                                 <a
-                                    href={`https://wa.me/${CONFIG.contact.whatsapp}`}
+                                    href={`https://wa.me/${CONFIG.contacto.whatsapp}`}
+                                    target="_blank"
                                     className="inline-flex items-center gap-2 px-6 py-3 bg-white text-grana-purple font-bold rounded-xl hover:bg-gray-100 transition-colors"
                                 >
                                     <MessageCircle className="w-5 h-5" />
@@ -428,13 +435,13 @@ export default function Tienda() {
                         <div className="col-span-2 lg:col-span-1">
                             <Link to="/" className="inline-flex items-center gap-2 mb-4">
                                 <div className="w-10 h-10 bg-gradient-to-br from-grana-purple to-grana-cyan rounded-xl flex items-center justify-center">
-                                    <Printer className="w-5 h-5 text-white" />
+                                    <Sparkles className="w-5 h-5 text-white" />
                                 </div>
                                 <span className="text-xl font-bold">
                                     <span className="text-grana-purple">Grana</span>3D
                                 </span>
                             </Link>
-                            <p className="text-gray-400 text-sm mb-4">{CONFIG.tagline}</p>
+                            <p className="text-gray-400 text-sm mb-4">{CONFIG.descripcion}</p>
                             <div className="flex gap-3">
                                 <a href={CONFIG.social.facebook} className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors">
                                     <Facebook className="w-5 h-5" />
@@ -446,22 +453,22 @@ export default function Tienda() {
                         </div>
 
                         <div>
-                            <h4 className="font-semibold mb-4">Tienda</h4>
+                            <h4 className="font-semibold mb-4">Categorías</h4>
                             <ul className="space-y-3 text-gray-400 text-sm">
-                                <li><a href="#" className="hover:text-white transition-colors">Impresoras</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Filamentos</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Figuras</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Decoración</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Regalos</a></li>
                                 <li><a href="#" className="hover:text-white transition-colors">Accesorios</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Ofertas</a></li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 className="font-semibold mb-4">Ayuda</h4>
+                            <h4 className="font-semibold mb-4">Información</h4>
                             <ul className="space-y-3 text-gray-400 text-sm">
-                                <li><a href="#" className="hover:text-white transition-colors">Contacto</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Sobre Nosotros</a></li>
                                 <li><a href="#" className="hover:text-white transition-colors">Envíos</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Devoluciones</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Preguntas Frecuentes</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Términos y Condiciones</a></li>
                             </ul>
                         </div>
 
@@ -470,28 +477,30 @@ export default function Tienda() {
                             <ul className="space-y-3 text-gray-400 text-sm">
                                 <li className="flex items-center gap-2">
                                     <Mail className="w-4 h-4 text-grana-cyan" />
-                                    {CONFIG.contact.email}
+                                    {CONFIG.contacto.email}
                                 </li>
                                 <li className="flex items-center gap-2">
                                     <Phone className="w-4 h-4 text-grana-cyan" />
-                                    {CONFIG.contact.phone}
+                                    {CONFIG.contacto.telefono}
                                 </li>
                                 <li className="flex items-center gap-2">
                                     <MapPin className="w-4 h-4 text-grana-cyan" />
-                                    {CONFIG.contact.location}
+                                    {CONFIG.contacto.ubicacion}
                                 </li>
                             </ul>
                         </div>
                     </div>
 
                     <div className="border-t border-white/10 pt-8 text-center text-gray-500 text-sm">
-                        © {new Date().getFullYear()} {CONFIG.storeName}. Todos los derechos reservados.
+                        © {new Date().getFullYear()} {CONFIG.nombreTienda}. Todos los derechos reservados.
                     </div>
                 </div>
             </footer>
 
-            {/* WhatsApp Float */}
-            <FloatingWhatsApp />
+            {/* Componentes Flotantes */}
+            <BotonWhatsApp />
+            <CarritoDrawer />
+            <ModalUsuario />
         </div>
     )
 }
