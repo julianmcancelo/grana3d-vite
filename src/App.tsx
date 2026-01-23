@@ -4,6 +4,8 @@ import { CarritoProvider } from './context/CarritoContext'
 import { UsuarioProvider } from './context/UsuarioContext'
 import Home from './pages/Home'
 import Tienda from './pages/Tienda'
+import ProductoDetalle from './pages/ProductoDetalle'
+import NotFound from './pages/NotFound'
 
 // Admin
 import AdminLayout from './layouts/AdminLayout'
@@ -13,7 +15,6 @@ import Categorias from './pages/admin/Categorias'
 import Configuracion from './pages/admin/Configuracion'
 import AdminPlaceholder from './components/AdminPlaceholder'
 import Banners from './pages/admin/Banners'
-import NotFound from './pages/NotFound'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               {/* Rutas Públicas */}
               <Route path="/" element={<Home />} />
               <Route path="/tienda" element={<Tienda />} />
+              <Route path="/producto/:slug" element={<ProductoDetalle />} />
 
               {/* Rutas Admin */}
               <Route path="/admin" element={<AdminLayout />}>
