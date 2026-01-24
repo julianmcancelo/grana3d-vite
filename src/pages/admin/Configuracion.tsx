@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
     Save, Settings, Store, Phone, Mail, MapPin,
-    Instagram, Facebook, Truck, CreditCard, Palette
+    Instagram, Facebook, Truck, CreditCard, Palette, Banknote, MessageCircle
 } from 'lucide-react'
 import api from '../../api/client'
 
@@ -20,6 +20,19 @@ interface Config {
     costo_envio: string
     color_primario: string
     color_secundario: string
+    // Checkout / Bank
+    banco_nombre: string
+    banco_titular: string
+    banco_cbu: string
+    banco_alias: string
+    banco_cuit: string
+    whatsapp_checkout: string
+    // Shipping
+    envio_retiro_activo: string
+    envio_correo_activo: string
+    envio_correo_precio: string
+    envio_andreani_activo: string
+    envio_andreani_precio: string
 }
 
 export default function Configuracion() {
@@ -36,7 +49,20 @@ export default function Configuracion() {
         envio_gratis_minimo: '50000',
         costo_envio: '5000',
         color_primario: '#8B5CF6',
-        color_secundario: '#06B6D4'
+        color_secundario: '#06B6D4',
+        // Checkout
+        banco_nombre: '',
+        banco_titular: '',
+        banco_cbu: '',
+        banco_alias: '',
+        banco_cuit: '',
+        whatsapp_checkout: '',
+        // Shipping methods
+        envio_retiro_activo: 'true',
+        envio_correo_activo: 'true',
+        envio_correo_precio: '3500',
+        envio_andreani_activo: 'true',
+        envio_andreani_precio: '5000'
     })
     const [loading, setLoading] = useState(true)
     const [guardando, setGuardando] = useState(false)
@@ -100,8 +126,8 @@ export default function Configuracion() {
                     onClick={guardarConfig}
                     disabled={guardando}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-lg transition ${guardadoExitoso
-                            ? 'bg-green-500 text-white'
-                            : 'bg-grana-purple text-white hover:bg-grana-purple/90'
+                        ? 'bg-green-500 text-white'
+                        : 'bg-grana-purple text-white hover:bg-grana-purple/90'
                         } disabled:opacity-50`}
                 >
                     <Save className="w-4 h-4" />
@@ -315,6 +341,87 @@ export default function Configuracion() {
                                 placeholder="5000"
                             />
                             <p className="text-xs text-gray-400 mt-1">Costo si no alcanza el mínimo</p>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Datos Bancarios / Checkout */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+                >
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                            <Banknote className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <h2 className="text-lg font-semibold text-gray-900">Datos para Transferencia</h2>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Banco</label>
+                            <input
+                                type="text"
+                                value={config.banco_nombre}
+                                onChange={(e) => handleChange('banco_nombre', e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20 focus:border-grana-purple"
+                                placeholder="Banco Galicia"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Titular de la Cuenta</label>
+                            <input
+                                type="text"
+                                value={config.banco_titular}
+                                onChange={(e) => handleChange('banco_titular', e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20 focus:border-grana-purple"
+                                placeholder="GRANA 3D SRL"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">CBU</label>
+                            <input
+                                type="text"
+                                value={config.banco_cbu}
+                                onChange={(e) => handleChange('banco_cbu', e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20 focus:border-grana-purple font-mono"
+                                placeholder="0070999030004123456789"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Alias</label>
+                            <input
+                                type="text"
+                                value={config.banco_alias}
+                                onChange={(e) => handleChange('banco_alias', e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20 focus:border-grana-purple"
+                                placeholder="GRANA3D.TIENDA"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">CUIT</label>
+                            <input
+                                type="text"
+                                value={config.banco_cuit}
+                                onChange={(e) => handleChange('banco_cuit', e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20 focus:border-grana-purple"
+                                placeholder="30-12345678-9"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <MessageCircle className="w-4 h-4 inline mr-1" /> WhatsApp para Checkout
+                            </label>
+                            <input
+                                type="text"
+                                value={config.whatsapp_checkout}
+                                onChange={(e) => handleChange('whatsapp_checkout', e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20 focus:border-grana-purple"
+                                placeholder="5491112345678"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">Número con código de país, sin +</p>
                         </div>
                     </div>
                 </motion.div>

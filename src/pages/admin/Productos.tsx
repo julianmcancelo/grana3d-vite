@@ -28,7 +28,13 @@ interface Producto {
     categoriaId: string
     categoria: Categoria
     createdAt: string
+    colores: string[]
+    tamanos: string[]
+    variantes: string[]
 }
+
+const COMMON_COLORS = ['Blanco', 'Negro', 'Rojo', 'Azul', 'Verde', 'Gris', 'Naranja', 'Amarillo', 'Rosa', 'Violeta']
+const COMMON_SIZES = ['Chico', 'Mediano', 'Grande', 'XL', 'XXL', '15cm', '20cm', '25cm', '30cm']
 
 export default function Productos() {
     const [productos, setProductos] = useState<Producto[]>([])
@@ -53,8 +59,15 @@ export default function Productos() {
         imagenes: [] as string[],
         destacado: false,
         nuevo: true,
-        categoriaId: ''
+        categoriaId: '',
+        colores: [] as string[],
+        tamanos: [] as string[],
+        variantes: [] as string[]
     })
+
+    const [nuevoColor, setNuevoColor] = useState('')
+    const [nuevoTamano, setNuevoTamano] = useState('')
+    const [nuevaVariante, setNuevaVariante] = useState('')
 
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -90,7 +103,10 @@ export default function Productos() {
                 imagenes: producto.imagenes || [],
                 destacado: producto.destacado,
                 nuevo: producto.nuevo,
-                categoriaId: producto.categoriaId
+                categoriaId: producto.categoriaId,
+                colores: producto.colores || [],
+                tamanos: producto.tamanos || [],
+                variantes: producto.variantes || []
             })
         } else {
             setProductoEditando(null)
@@ -104,7 +120,10 @@ export default function Productos() {
                 imagenes: [],
                 destacado: false,
                 nuevo: true,
-                categoriaId: categorias[0]?.id || ''
+                categoriaId: categorias[0]?.id || '',
+                colores: [],
+                tamanos: [],
+                variantes: []
             })
         }
         setModalAbierto(true)
@@ -137,6 +156,35 @@ export default function Productos() {
             ...prev,
             imagenes: prev.imagenes.filter((_, i) => i !== index)
         }))
+
+    }
+
+    const agregarTag = (campo: 'colores' | 'tamanos' | 'variantes', valor: string) => {
+        if (!valor.trim()) return
+        if (form[campo].includes(valor.trim())) return
+
+        setForm(prev => ({
+            ...prev,
+            [campo]: [...prev[campo], valor.trim()]
+        }))
+
+        if (campo === 'colores') setNuevoColor('')
+        if (campo === 'tamanos') setNuevoTamano('')
+        if (campo === 'variantes') setNuevaVariante('')
+    }
+
+    const eliminarTag = (campo: 'colores' | 'tamanos' | 'variantes', valor: string) => {
+        setForm(prev => ({
+            ...prev,
+            [campo]: prev[campo].filter(t => t !== valor)
+        }))
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent, campo: 'colores' | 'tamanos' | 'variantes', valor: string) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            agregarTag(campo, valor)
+        }
     }
 
     const guardarProducto = async () => {
@@ -308,8 +356,8 @@ export default function Productos() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 text-xs rounded-full ${producto.stock > 10 ? 'bg-green-100 text-green-700' :
-                                                    producto.stock > 0 ? 'bg-yellow-100 text-yellow-700' :
-                                                        'bg-red-100 text-red-700'
+                                                producto.stock > 0 ? 'bg-yellow-100 text-yellow-700' :
+                                                    'bg-red-100 text-red-700'
                                                 }`}>
                                                 {producto.stock} unidades
                                             </span>
@@ -318,8 +366,8 @@ export default function Productos() {
                                             <button
                                                 onClick={() => toggleActivo(producto)}
                                                 className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full transition ${producto.activo
-                                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                                                     }`}
                                             >
                                                 {producto.activo ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
@@ -519,8 +567,153 @@ export default function Productos() {
                                         value={form.stock}
                                         onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })}
                                         className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20 focus:border-grana-purple"
-                                        placeholder="0"
                                     />
+                                </div>
+
+                                {/* Secciones de Variantes (Tags) */}
+                                <div className="space-y-4">
+                                    <h3 className="font-semibold text-gray-900 border-b pb-2">Variantes de Producto</h3>
+
+                                    {/* Colores */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Colores Disponibles
+                                        </label>
+                                        <div className="flex gap-2 mb-2">
+                                            <input
+                                                type="text"
+                                                value={nuevoColor}
+                                                onChange={(e) => setNuevoColor(e.target.value)}
+                                                onKeyDown={(e) => handleKeyDown(e, 'colores', nuevoColor)}
+                                                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20"
+                                                placeholder="Ej: Rojo, Azul Mate..."
+                                            />
+                                            <button
+                                                onClick={() => agregarTag('colores', nuevoColor)}
+                                                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
+                                            >
+                                                <Plus className="w-5 h-5" />
+                                            </button>
+
+                                        </div>
+                                        {/* Sugerencias Rápidas Colores */}
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {COMMON_COLORS.map(color => {
+                                                const isActive = form.colores.includes(color)
+                                                return (
+                                                    <button
+                                                        key={color}
+                                                        onClick={() => isActive ? eliminarTag('colores', color) : agregarTag('colores', color)}
+                                                        className={`px-3 py-1 rounded-full text-xs font-medium border transition ${isActive
+                                                                ? 'bg-grana-purple text-white border-grana-purple'
+                                                                : 'bg-white text-gray-600 border-gray-200 hover:border-grana-purple hover:text-grana-purple'
+                                                            }`}
+                                                    >
+                                                        {color}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {form.colores.map(color => (
+                                                <span key={color} className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm">
+                                                    {color}
+                                                    <button onClick={() => eliminarTag('colores', color)} className="hover:text-purple-900">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                            {form.colores.length === 0 && <span className="text-xs text-gray-400">Sin colores específicos (se mostrarán todos por defecto si aplica)</span>}
+                                        </div>
+                                    </div>
+
+                                    {/* Tamaños */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Tamaños / Capacidades
+                                        </label>
+                                        <div className="flex gap-2 mb-2">
+                                            <input
+                                                type="text"
+                                                value={nuevoTamano}
+                                                onChange={(e) => setNuevoTamano(e.target.value)}
+                                                onKeyDown={(e) => handleKeyDown(e, 'tamanos', nuevoTamano)}
+                                                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20"
+                                                placeholder="Ej: Grande, 500ml, 20cm..."
+                                            />
+                                            <button
+                                                onClick={() => agregarTag('tamanos', nuevoTamano)}
+                                                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
+                                            >
+                                                <Plus className="w-5 h-5" />
+                                            </button>
+                                        </div>
+
+
+                                        {/* Sugerencias Rápidas Tamaños */}
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {COMMON_SIZES.map(t => {
+                                                const isActive = form.tamanos.includes(t)
+                                                return (
+                                                    <button
+                                                        key={t}
+                                                        onClick={() => isActive ? eliminarTag('tamanos', t) : agregarTag('tamanos', t)}
+                                                        className={`px-3 py-1 rounded-full text-xs font-medium border transition ${isActive
+                                                                ? 'bg-blue-500 text-white border-blue-500'
+                                                                : 'bg-white text-gray-600 border-gray-200 hover:border-blue-500 hover:text-blue-500'
+                                                            }`}
+                                                    >
+                                                        {t}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {form.tamanos.map(t => (
+                                                <span key={t} className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+                                                    {t}
+                                                    <button onClick={() => eliminarTag('tamanos', t)} className="hover:text-blue-900">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Variantes Generales */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Otras Variantes
+                                        </label>
+                                        <div className="flex gap-2 mb-2">
+                                            <input
+                                                type="text"
+                                                value={nuevaVariante}
+                                                onChange={(e) => setNuevaVariante(e.target.value)}
+                                                onKeyDown={(e) => handleKeyDown(e, 'variantes', nuevaVariante)}
+                                                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grana-purple/20"
+                                                placeholder="Ej: Con Base, Sin Pintar..."
+                                            />
+                                            <button
+                                                onClick={() => agregarTag('variantes', nuevaVariante)}
+                                                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
+                                            >
+                                                <Plus className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {form.variantes.map(v => (
+                                                <span key={v} className="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm">
+                                                    {v}
+                                                    <button onClick={() => eliminarTag('variantes', v)} className="hover:text-orange-900">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Opciones */}
@@ -562,10 +755,11 @@ export default function Productos() {
                                     {guardando ? 'Guardando...' : 'Guardar Producto'}
                                 </button>
                             </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+                        </motion.div >
+                    </motion.div >
+                )
+                }
+            </AnimatePresence >
+        </div >
     )
 }

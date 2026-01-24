@@ -1,18 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Plus, Minus, Trash2, ShoppingBag, MessageCircle } from 'lucide-react'
+import { X, Plus, Minus, Trash2, ShoppingBag, CreditCard } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useCarrito } from '../context/CarritoContext'
 
 export default function CarritoDrawer() {
+    const navigate = useNavigate()
     const { items, cantidadTotal, total, estaAbierto, cerrarCarrito, actualizarCantidad, eliminarProducto, vaciarCarrito } = useCarrito()
 
-    const finalizarCompra = () => {
-        const mensaje = items.map(item =>
-            `• ${item.nombre} x${item.cantidad} - $${(item.precio * item.cantidad).toLocaleString('es-AR')}`
-        ).join('\n')
-
-        const textoWhatsApp = `¡Hola! Quiero hacer un pedido:\n\n${mensaje}\n\nTotal: $${total.toLocaleString('es-AR')}`
-
-        window.open(`https://wa.me/5491112345678?text=${encodeURIComponent(textoWhatsApp)}`, '_blank')
+    const irACheckout = () => {
+        cerrarCarrito()
+        navigate('/checkout')
     }
 
     return (
@@ -134,11 +131,11 @@ export default function CarritoDrawer() {
                                 </div>
 
                                 <button
-                                    onClick={finalizarCompra}
-                                    className="w-full py-3 bg-green-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-green-600 transition-colors"
+                                    onClick={irACheckout}
+                                    className="w-full py-3 bg-grana-purple text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-grana-purple/90 transition-colors"
                                 >
-                                    <MessageCircle className="w-5 h-5" />
-                                    Finalizar por WhatsApp
+                                    <CreditCard className="w-5 h-5" />
+                                    Finalizar Compra
                                 </button>
 
                                 <button

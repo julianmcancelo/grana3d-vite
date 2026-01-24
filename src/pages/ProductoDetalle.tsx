@@ -25,6 +25,9 @@ interface Producto {
     material: string | null
     color: string | null
     peso: number | null
+    colores: string[]
+    tamanos: string[]
+    variantes: string[]
 }
 
 const COLORES_DISPONIBLES = [
@@ -44,7 +47,12 @@ export default function ProductoDetalle() {
     const [loading, setLoading] = useState(true)
     const [imagenActiva, setImagenActiva] = useState(0)
     const [cantidad, setCantidad] = useState(1)
-    const [colorSeleccionado, setColorSeleccionado] = useState(COLORES_DISPONIBLES[0])
+
+    // Estados para variantes seleccionadas
+    const [colorSel, setColorSel] = useState('')
+    const [tamanoSel, setTamanoSel] = useState('')
+    const [varianteSel, setVarianteSel] = useState('')
+
     const { agregarProducto, abrirCarrito } = useCarrito()
 
     useEffect(() => {
@@ -52,6 +60,12 @@ export default function ProductoDetalle() {
             try {
                 const { data } = await api.get(`/productos/slug/${slug}`)
                 setProducto(data)
+
+                // Pre-seleccionar primera opción si existe
+                if (data.colores && data.colores.length > 0) setColorSel(data.colores[0])
+                if (data.tamanos && data.tamanos.length > 0) setTamanoSel(data.tamanos[0])
+                if (data.variantes && data.variantes.length > 0) setVarianteSel(data.variantes[0])
+
             } catch (error) {
                 console.error('Error cargando producto:', error)
                 // navigate('/tienda') // Opcional: redirigir si falla
@@ -86,13 +100,26 @@ export default function ProductoDetalle() {
     const porcentajeDescuento = producto.precioOferta ? Math.round(((producto.precio - producto.precioOferta) / producto.precio) * 100) : 0
 
     const handleAgregar = () => {
+        // Validación: Si hay opciones disponibles, deben estar seleccionadas
+        if (producto.colores.length > 0 && !colorSel) { alert('Selecciona un color'); return }
+        if (producto.tamanos.length > 0 && !tamanoSel) { alert('Selecciona un tamaño'); return }
+        if (producto.variantes.length > 0 && !varianteSel) { alert('Selecciona una opción'); return }
+
+        // Construir string de variante única para el carrito
+        const partesVariante = []
+        if (colorSel) partesVariante.push(colorSel)
+        if (tamanoSel) partesVariante.push(tamanoSel)
+        if (varianteSel) partesVariante.push(varianteSel)
+
+        const varianteFinal = partesVariante.length > 0 ? partesVariante.join(' | ') : undefined
+
         agregarProducto({
             id: producto.id,
             nombre: producto.nombre,
             precio: precio,
             imagen: producto.imagenes[0] || '',
             cantidad: cantidad,
-            variante: colorSeleccionado.nombre // Hack: pasamos color como variante si el contexto lo soporta, sino solo informativo
+            variante: varianteFinal
         })
         abrirCarrito()
     }
@@ -178,27 +205,88 @@ export default function ProductoDetalle() {
 
                         <div className="h-px bg-gray-100 dark:bg-gray-800 mb-8" />
 
-                        {/* Selección de Color */}
-                        <div className="mb-8">
-                            <h3 className="font-medium text-gray-900 dark:text-white mb-4 flex items-center justify-between">
-                                Color Seleccionado: <span className="text-gray-500 dark:text-gray-400 font-normal">{colorSeleccionado.nombre}</span>
-                            </h3>
-                            <div className="flex flex-wrap gap-3">
-                                {COLORES_DISPONIBLES.map((color) => (
-                                    <button
-                                        key={color.nombre}
-                                        onClick={() => setColorSeleccionado(color)}
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${colorSeleccionado.nombre === color.nombre ? 'ring-2 ring-offset-2 ring-grana-purple border-transparent' : 'border-transparent'
-                                            }`}
-                                        style={{ backgroundColor: color.valor }}
-                                        title={color.nombre}
-                                    >
-                                        {colorSeleccionado.nombre === color.nombre && (
-                                            <Check className={`w-5 h-5 ${color.nombre === 'Blanco' ? 'text-black' : 'text-white'}`} />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
+                        {/* Selectores Dinámicos */}
+                        <div className="space-y-6 mb-8">
+
+                            {/* Selector de Color */}
+                            {producto.colores && producto.colores.length > 0 && (
+                                <div>
+                                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                                        Color: <span className="text-gray-500 font-normal">{colorSel}</span>
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {producto.colores.map((color) => {
+                                            const colorInfo = COLORES_DISPONIBLES.find(c => c.nombre.toLowerCase() === color.toLowerCase())
+                                            const bgColor = colorInfo ? colorInfo.valor : '#e5e7eb'
+                                            const isSelected = colorSel === color
+
+                                            // Si existe en nuestra paleta conocida, mostramos círculo, sino pill
+                                            if (colorInfo) {
+                                                return (
+                                                    <button
+                                                        key={color}
+                                                        onClick={() => setColorSel(color)}
+                                                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${isSelected ? 'ring-2 ring-offset-2 ring-grana-purple border-transparent' : 'border-transparent'}`}
+                                                        style={{ backgroundColor: bgColor }}
+                                                        title={color}
+                                                    >
+                                                        {isSelected && <Check className={`w-5 h-5 ${color.toLowerCase() === 'blanco' ? 'text-black' : 'text-white'}`} />}
+                                                    </button>
+                                                )
+                                            }
+                                            return (
+                                                <button
+                                                    key={color}
+                                                    onClick={() => setColorSel(color)}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${isSelected ? 'border-grana-purple text-grana-purple bg-purple-50' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                                                >
+                                                    {color}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Selector de Tamaño */}
+                            {producto.tamanos && producto.tamanos.length > 0 && (
+                                <div>
+                                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                                        Tamaño / Capacidad: <span className="text-gray-500 font-normal">{tamanoSel}</span>
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {producto.tamanos.map((tamano) => (
+                                            <button
+                                                key={tamano}
+                                                onClick={() => setTamanoSel(tamano)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${tamanoSel === tamano ? 'border-grana-purple text-grana-purple bg-purple-50' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                                            >
+                                                {tamano}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Otras Variantes */}
+                            {producto.variantes && producto.variantes.length > 0 && (
+                                <div>
+                                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                                        Opciones: <span className="text-gray-500 font-normal">{varianteSel}</span>
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {producto.variantes.map((variante) => (
+                                            <button
+                                                key={variante}
+                                                onClick={() => setVarianteSel(variante)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${varianteSel === variante ? 'border-grana-purple text-grana-purple bg-purple-50' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                                            >
+                                                {variante}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Cantidad y Agregar */}
